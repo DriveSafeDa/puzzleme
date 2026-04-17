@@ -186,6 +186,17 @@ export function PuzzleGame({
         </span>
       </div>
 
+      {/* Hint reference card */}
+      {showHint && (
+        <div className="mb-4 rounded-xl overflow-hidden border-2 border-cream-300 shadow-md" style={{ maxWidth: 240 }}>
+          <img
+            src={imageUrl}
+            alt="Hint — completed puzzle"
+            className="w-full object-contain"
+          />
+        </div>
+      )}
+
       <div
         ref={boardRef}
         className="relative rounded-2xl border-2 border-cream-300 bg-cream-100 touch-none"
@@ -193,20 +204,6 @@ export function PuzzleGame({
         onPointerMove={handlePointerMove}
         onPointerUp={handlePointerUp}
       >
-        {/* Ghost hint image */}
-        {showHint && (
-          <img
-            src={imageUrl}
-            alt=""
-            className="absolute opacity-15 pointer-events-none object-contain"
-            style={{
-              left: pieces[0]?.correctX + (pieces[0]?.canvasW - Math.floor(boardSize.w / gridSize)) / 2,
-              top: pieces[0]?.correctY + (pieces[0]?.canvasH - Math.floor(boardSize.h / gridSize)) / 2,
-              width: Math.floor(boardSize.w / gridSize) * gridSize,
-              height: Math.floor(boardSize.h / gridSize) * gridSize,
-            }}
-          />
-        )}
 
         {/* Puzzle pieces */}
         {pieces.map((piece, zIndex) => (
