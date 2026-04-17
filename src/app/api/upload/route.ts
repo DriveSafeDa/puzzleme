@@ -3,15 +3,12 @@ import { prisma } from "@/lib/db";
 
 export const dynamic = "force-dynamic";
 
-// TODO: Add R2 presigned upload in Phase 2
-// For now, this creates a puzzle record with an external image URL
-
 export async function POST(request: NextRequest) {
   try {
-    const { code, imageUrl, caption, uploadedBy } = await request.json();
+    const { code, imageUrl, imageData, caption, uploadedBy } = await request.json();
 
-    if (!code || !imageUrl) {
-      return NextResponse.json({ error: "Missing code or imageUrl" }, { status: 400 });
+    if (!code || (!imageUrl && !imageData)) {
+      return NextResponse.json({ error: "Missing code or image" }, { status: 400 });
     }
 
     const resident = await prisma.resident.findUnique({
@@ -22,10 +19,22 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "Invalid upload code" }, { status: 404 });
     }
 
+    // Use imageUrl if provided (API seeding), otherwise use base64 data URL
+    const finalUrl = imageUrl || imageData;
+
+    if (!finalUrl) {
+      return NextResponse.json({ error: "No image provided" }, { status: 400 });
+    }
+
+    // Limit base64 size (~10MB)
+    if (imageData && imageData.length > 10_000_000) {
+      return NextResponse.json({ error: "Image too large — max 10MB" }, { status: 413 });
+    }
+
     const puzzle = await prisma.puzzle.create({
       data: {
         residentId: resident.id,
-        imageUrl,
+        imageUrl: finalUrl,
         caption: caption || null,
         uploadedBy: uploadedBy || null,
       },

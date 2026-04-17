@@ -105,9 +105,7 @@ export function CelebrationOverlay({
         }`}
       >
         <button
-          onClick={() =>
-            router.push(`/play/${code}/${puzzleId}?grid=${gridSize}`)
-          }
+          onClick={() => window.location.href = `/play/${code}/${puzzleId}?grid=${gridSize}&t=${Date.now()}`}
           className="px-8 py-4 rounded-2xl bg-white border-2 border-cream-300 text-stone-700 font-bold text-lg hover:border-stone-400 transition-all active:scale-95"
         >
           Play Again
