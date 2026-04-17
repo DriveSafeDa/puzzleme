@@ -12,6 +12,8 @@ import { playSnap, playCelebrate, playPickUp, vibrate } from "@/lib/sounds";
 import { CelebrationOverlay } from "./CelebrationOverlay";
 import { HintToggle } from "./HintToggle";
 
+const SNAP_RADIUS = 80;
+
 export function PuzzleGame({
   puzzleId,
   imageUrl,
@@ -30,14 +32,21 @@ export function PuzzleGame({
   code: string;
 }) {
   const boardRef = useRef<HTMLDivElement>(null);
+  const piecesRef = useRef<PuzzlePiece[]>([]);
   const [pieces, setPieces] = useState<PuzzlePiece[]>([]);
-  const [activePiece, setActivePiece] = useState<number | null>(null);
-  const [dragOffset, setDragOffset] = useState({ x: 0, y: 0 });
+  const activePieceRef = useRef<number | null>(null);
+  const dragOffsetRef = useRef({ x: 0, y: 0 });
   const [completed, setCompleted] = useState(false);
   const [showHint, setShowHint] = useState(false);
   const [loading, setLoading] = useState(true);
   const [boardSize, setBoardSize] = useState({ w: 0, h: 0 });
+  const [, forceRender] = useState(0);
   const startTime = useRef(Date.now());
+
+  // Keep ref in sync
+  useEffect(() => {
+    piecesRef.current = pieces;
+  }, [pieces]);
 
   // Calculate board size
   useEffect(() => {
@@ -65,60 +74,29 @@ export function PuzzleGame({
     );
   }, [imageUrl, gridSize, boardSize]);
 
-  const handlePointerDown = useCallback(
-    (e: React.PointerEvent, pieceId: number) => {
-      const piece = pieces.find((p) => p.id === pieceId);
-      if (!piece || piece.isPlaced) return;
+  // Find which piece is under a point
+  const findPieceAt = useCallback((boardX: number, boardY: number): number | null => {
+    // Search from top (last in array = highest z-index) to bottom
+    for (let i = piecesRef.current.length - 1; i >= 0; i--) {
+      const p = piecesRef.current[i];
+      if (p.isPlaced) continue;
+      if (
+        boardX >= p.currentX &&
+        boardX <= p.currentX + p.canvasW &&
+        boardY >= p.currentY &&
+        boardY <= p.currentY + p.canvasH
+      ) {
+        return p.id;
+      }
+    }
+    return null;
+  }, []);
 
-      const board = boardRef.current?.getBoundingClientRect();
-      if (!board) return;
-
-      setActivePiece(pieceId);
-      setDragOffset({
-        x: e.clientX - board.left - piece.currentX,
-        y: e.clientY - board.top - piece.currentY,
-      });
-      playPickUp();
-
-      // Bring to front by moving to end of array
-      setPieces((prev) => {
-        const idx = prev.findIndex((p) => p.id === pieceId);
-        const copy = [...prev];
-        const [moved] = copy.splice(idx, 1);
-        copy.push(moved);
-        return copy;
-      });
-
-      (e.target as HTMLElement).setPointerCapture(e.pointerId);
-    },
-    [pieces]
-  );
-
-  const handlePointerMove = useCallback(
-    (e: React.PointerEvent) => {
-      if (activePiece === null) return;
-      const board = boardRef.current?.getBoundingClientRect();
-      if (!board) return;
-
-      const x = e.clientX - board.left - dragOffset.x;
-      const y = e.clientY - board.top - dragOffset.y;
-
-      setPieces((prev) =>
-        prev.map((p) =>
-          p.id === activePiece ? { ...p, currentX: x, currentY: y } : p
-        )
-      );
-    },
-    [activePiece, dragOffset]
-  );
-
-  const handlePointerUp = useCallback(() => {
-    if (activePiece === null) return;
-
+  const snapAndCheck = useCallback((pieceId: number) => {
     setPieces((prev) => {
       const updated = prev.map((p) => {
-        if (p.id !== activePiece) return p;
-        const snap = checkSnap(p, 80);
+        if (p.id !== pieceId) return p;
+        const snap = checkSnap(p, SNAP_RADIUS);
         if (snap.snapped) {
           playSnap();
           vibrate();
@@ -127,12 +105,10 @@ export function PuzzleGame({
         return p;
       });
 
-      // Check completion
       if (isComplete(updated)) {
         setTimeout(() => {
           playCelebrate();
           setCompleted(true);
-
           const duration = Math.round((Date.now() - startTime.current) / 1000);
           fetch("/api/sessions", {
             method: "POST",
@@ -149,9 +125,86 @@ export function PuzzleGame({
 
       return updated;
     });
+  }, [gridSize, puzzleId]);
 
-    setActivePiece(null);
-  }, [activePiece, gridSize, puzzleId]);
+  // All pointer events on the board — prevents losing capture
+  const handleBoardPointerDown = useCallback(
+    (e: React.PointerEvent) => {
+      const board = boardRef.current?.getBoundingClientRect();
+      if (!board) return;
+
+      const boardX = e.clientX - board.left;
+      const boardY = e.clientY - board.top;
+      const pieceId = findPieceAt(boardX, boardY);
+      if (pieceId === null) return;
+
+      const piece = piecesRef.current.find((p) => p.id === pieceId);
+      if (!piece) return;
+
+      activePieceRef.current = pieceId;
+      dragOffsetRef.current = {
+        x: boardX - piece.currentX,
+        y: boardY - piece.currentY,
+      };
+      playPickUp();
+
+      // Bring to front
+      setPieces((prev) => {
+        const idx = prev.findIndex((p) => p.id === pieceId);
+        const copy = [...prev];
+        const [moved] = copy.splice(idx, 1);
+        copy.push(moved);
+        return copy;
+      });
+
+      boardRef.current?.setPointerCapture(e.pointerId);
+      e.preventDefault();
+    },
+    [findPieceAt]
+  );
+
+  const handleBoardPointerMove = useCallback(
+    (e: React.PointerEvent) => {
+      const pieceId = activePieceRef.current;
+      if (pieceId === null) return;
+
+      const board = boardRef.current?.getBoundingClientRect();
+      if (!board) return;
+
+      const x = e.clientX - board.left - dragOffsetRef.current.x;
+      const y = e.clientY - board.top - dragOffsetRef.current.y;
+
+      // Update piece position
+      setPieces((prev) =>
+        prev.map((p) =>
+          p.id === pieceId ? { ...p, currentX: x, currentY: y } : p
+        )
+      );
+
+      // Magnetic snap — check while dragging
+      const piece = piecesRef.current.find((p) => p.id === pieceId);
+      if (piece) {
+        const testPiece = { ...piece, currentX: x, currentY: y };
+        const snap = checkSnap(testPiece, SNAP_RADIUS);
+        if (snap.snapped) {
+          activePieceRef.current = null;
+          snapAndCheck(pieceId);
+          forceRender((n) => n + 1);
+        }
+      }
+    },
+    [snapAndCheck]
+  );
+
+  const handleBoardPointerUp = useCallback(() => {
+    const pieceId = activePieceRef.current;
+    if (pieceId === null) return;
+
+    // Try snap on release too (in case magnetic didn't trigger)
+    snapAndCheck(pieceId);
+    activePieceRef.current = null;
+    forceRender((n) => n + 1);
+  }, [snapAndCheck]);
 
   if (loading) {
     return (
@@ -177,6 +230,8 @@ export function PuzzleGame({
     );
   }
 
+  const activePieceId = activePieceRef.current;
+
   return (
     <main className="min-h-screen flex flex-col items-center justify-center px-4 py-4 select-none">
       <div className="flex items-center gap-4 mb-4">
@@ -201,21 +256,21 @@ export function PuzzleGame({
         ref={boardRef}
         className="relative rounded-2xl border-2 border-cream-300 bg-cream-100 touch-none"
         style={{ width: boardSize.w, height: boardSize.h }}
-        onPointerMove={handlePointerMove}
-        onPointerUp={handlePointerUp}
+        onPointerDown={handleBoardPointerDown}
+        onPointerMove={handleBoardPointerMove}
+        onPointerUp={handleBoardPointerUp}
+        onPointerCancel={handleBoardPointerUp}
       >
-
         {/* Puzzle pieces */}
         {pieces.map((piece, zIndex) => (
           <div
             key={piece.id}
-            onPointerDown={(e) => handlePointerDown(e, piece.id)}
-            className={`absolute cursor-grab active:cursor-grabbing ${
+            className={`absolute ${
               piece.isPlaced
                 ? "cursor-default"
-                : activePiece === piece.id
-                ? "scale-105 z-50"
-                : ""
+                : activePieceId === piece.id
+                ? "cursor-grabbing scale-105"
+                : "cursor-grab"
             }`}
             style={{
               left: piece.currentX,
@@ -223,26 +278,21 @@ export function PuzzleGame({
               width: piece.canvasW,
               height: piece.canvasH,
               zIndex: piece.isPlaced ? 0 : zIndex + 1,
-              transition:
-                activePiece === piece.id
-                  ? "none"
-                  : piece.isPlaced
-                  ? "all 0.2s ease"
-                  : "none",
+              transition: piece.isPlaced ? "all 0.15s ease-out" : "none",
               filter:
-                activePiece === piece.id
-                  ? "drop-shadow(4px 4px 8px rgba(0,0,0,0.3))"
+                activePieceId === piece.id
+                  ? "drop-shadow(4px 4px 8px rgba(0,0,0,0.35))"
                   : piece.isPlaced
-                  ? "drop-shadow(0 0 0 transparent)"
+                  ? "none"
                   : "drop-shadow(2px 2px 4px rgba(0,0,0,0.2))",
-              opacity: piece.isPlaced ? 0.99 : 1, // force compositing layer
+              pointerEvents: "none",
             }}
           >
             <img
               src={piece.dataUrl}
               alt=""
               draggable={false}
-              className="w-full h-full pointer-events-none"
+              className="w-full h-full"
             />
           </div>
         ))}
