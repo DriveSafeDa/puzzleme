@@ -118,7 +118,7 @@ export function PuzzleGame({
     setPieces((prev) => {
       const updated = prev.map((p) => {
         if (p.id !== activePiece) return p;
-        const snap = checkSnap(p, 40);
+        const snap = checkSnap(p, 80);
         if (snap.snapped) {
           playSnap();
           vibrate();
