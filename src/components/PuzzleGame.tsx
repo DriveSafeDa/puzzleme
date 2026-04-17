@@ -77,14 +77,16 @@ export function PuzzleGame({
   // Find which piece is under a point
   const findPieceAt = useCallback((boardX: number, boardY: number): number | null => {
     // Search from top (last in array = highest z-index) to bottom
+    // Use generous padding so partially offscreen pieces are still grabbable
+    const pad = 20;
     for (let i = piecesRef.current.length - 1; i >= 0; i--) {
       const p = piecesRef.current[i];
       if (p.isPlaced) continue;
       if (
-        boardX >= p.currentX &&
-        boardX <= p.currentX + p.canvasW &&
-        boardY >= p.currentY &&
-        boardY <= p.currentY + p.canvasH
+        boardX >= p.currentX - pad &&
+        boardX <= p.currentX + p.canvasW + pad &&
+        boardY >= p.currentY - pad &&
+        boardY <= p.currentY + p.canvasH + pad
       ) {
         return p.id;
       }
@@ -171,8 +173,14 @@ export function PuzzleGame({
       const board = boardRef.current?.getBoundingClientRect();
       if (!board) return;
 
-      const x = e.clientX - board.left - dragOffsetRef.current.x;
-      const y = e.clientY - board.top - dragOffsetRef.current.y;
+      const piece = piecesRef.current.find((p) => p.id === pieceId);
+      if (!piece) return;
+
+      // Clamp to board bounds
+      const rawX = e.clientX - board.left - dragOffsetRef.current.x;
+      const rawY = e.clientY - board.top - dragOffsetRef.current.y;
+      const x = Math.max(-piece.canvasW * 0.3, Math.min(board.width - piece.canvasW * 0.7, rawX));
+      const y = Math.max(-piece.canvasH * 0.3, Math.min(board.height - piece.canvasH * 0.7, rawY));
 
       // Update piece position
       setPieces((prev) =>
