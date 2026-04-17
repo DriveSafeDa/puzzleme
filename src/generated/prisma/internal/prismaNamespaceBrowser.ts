@@ -75,6 +75,7 @@ export type TransactionIsolationLevel = (typeof TransactionIsolationLevel)[keyof
 export const ResidentScalarFieldEnum = {
   id: 'id',
   displayName: 'displayName',
+  photoUrl: 'photoUrl',
   uploadCode: 'uploadCode',
   createdAt: 'createdAt'
 } as const

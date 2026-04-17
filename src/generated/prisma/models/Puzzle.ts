@@ -487,10 +487,6 @@ export type PuzzleUncheckedUpdateManyWithoutResidentNestedInput = {
   deleteMany?: Prisma.PuzzleScalarWhereInput | Prisma.PuzzleScalarWhereInput[]
 }
 
-export type NullableStringFieldUpdateOperationsInput = {
-  set?: string | null
-}
-
 export type IntFieldUpdateOperationsInput = {
   set?: number
   increment?: number

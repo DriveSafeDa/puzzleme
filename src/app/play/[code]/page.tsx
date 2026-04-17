@@ -1,25 +1,36 @@
-import type { Metadata } from "next";
+import { prisma } from "@/lib/db";
+import { redirect } from "next/navigation";
+import { PuzzleSelector } from "@/components/PuzzleSelector";
 
-export const metadata: Metadata = {
-  title: "Choose a Puzzle",
-};
+export const dynamic = "force-dynamic";
 
-export default function PuzzleSelectPage({
+export default async function PuzzleSelectPage({
   params,
 }: {
   params: { code: string };
 }) {
+  const resident = await prisma.resident.findUnique({
+    where: { uploadCode: params.code },
+    include: {
+      puzzles: {
+        orderBy: { createdAt: "desc" },
+      },
+    },
+  });
+
+  if (!resident) redirect("/");
+
   return (
-    <main className="min-h-screen flex items-center justify-center px-4">
-      <div className="max-w-2xl w-full text-center">
-        <h1 className="text-2xl font-bold text-stone-900">Your Puzzles</h1>
-        <p className="mt-2 text-sm text-stone-500">
-          Pick a memory to piece together.
-        </p>
-        <p className="mt-8 text-xs text-stone-400">
-          Puzzle selector coming soon — code: {params.code}
-        </p>
-      </div>
-    </main>
+    <PuzzleSelector
+      residentName={resident.displayName}
+      code={params.code}
+      puzzles={resident.puzzles.map((p) => ({
+        id: p.id,
+        imageUrl: p.imageUrl,
+        caption: p.caption,
+        uploadedBy: p.uploadedBy,
+        timesPlayed: p.timesPlayed,
+      }))}
+    />
   );
 }

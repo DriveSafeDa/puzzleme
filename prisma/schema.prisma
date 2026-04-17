@@ -10,6 +10,7 @@ datasource db {
 model Resident {
   id          String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   displayName String   @map("display_name") @db.VarChar(100)
+  photoUrl    String?  @map("photo_url") @db.VarChar(500)
   uploadCode  String   @unique @map("upload_code") @db.VarChar(8)
   createdAt   DateTime @default(now()) @map("created_at")
   puzzles     Puzzle[]

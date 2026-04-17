@@ -27,6 +27,7 @@ export type AggregateResident = {
 export type ResidentMinAggregateOutputType = {
   id: string | null
   displayName: string | null
+  photoUrl: string | null
   uploadCode: string | null
   createdAt: Date | null
 }
@@ -34,6 +35,7 @@ export type ResidentMinAggregateOutputType = {
 export type ResidentMaxAggregateOutputType = {
   id: string | null
   displayName: string | null
+  photoUrl: string | null
   uploadCode: string | null
   createdAt: Date | null
 }
@@ -41,6 +43,7 @@ export type ResidentMaxAggregateOutputType = {
 export type ResidentCountAggregateOutputType = {
   id: number
   displayName: number
+  photoUrl: number
   uploadCode: number
   createdAt: number
   _all: number
@@ -50,6 +53,7 @@ export type ResidentCountAggregateOutputType = {
 export type ResidentMinAggregateInputType = {
   id?: true
   displayName?: true
+  photoUrl?: true
   uploadCode?: true
   createdAt?: true
 }
@@ -57,6 +61,7 @@ export type ResidentMinAggregateInputType = {
 export type ResidentMaxAggregateInputType = {
   id?: true
   displayName?: true
+  photoUrl?: true
   uploadCode?: true
   createdAt?: true
 }
@@ -64,6 +69,7 @@ export type ResidentMaxAggregateInputType = {
 export type ResidentCountAggregateInputType = {
   id?: true
   displayName?: true
+  photoUrl?: true
   uploadCode?: true
   createdAt?: true
   _all?: true
@@ -144,6 +150,7 @@ export type ResidentGroupByArgs<ExtArgs extends runtime.Types.Extensions.Interna
 export type ResidentGroupByOutputType = {
   id: string
   displayName: string
+  photoUrl: string | null
   uploadCode: string
   createdAt: Date
   _count: ResidentCountAggregateOutputType | null
@@ -172,6 +179,7 @@ export type ResidentWhereInput = {
   NOT?: Prisma.ResidentWhereInput | Prisma.ResidentWhereInput[]
   id?: Prisma.UuidFilter<"Resident"> | string
   displayName?: Prisma.StringFilter<"Resident"> | string
+  photoUrl?: Prisma.StringNullableFilter<"Resident"> | string | null
   uploadCode?: Prisma.StringFilter<"Resident"> | string
   createdAt?: Prisma.DateTimeFilter<"Resident"> | Date | string
   puzzles?: Prisma.PuzzleListRelationFilter
@@ -180,6 +188,7 @@ export type ResidentWhereInput = {
 export type ResidentOrderByWithRelationInput = {
   id?: Prisma.SortOrder
   displayName?: Prisma.SortOrder
+  photoUrl?: Prisma.SortOrderInput | Prisma.SortOrder
   uploadCode?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   puzzles?: Prisma.PuzzleOrderByRelationAggregateInput
@@ -192,6 +201,7 @@ export type ResidentWhereUniqueInput = Prisma.AtLeast<{
   OR?: Prisma.ResidentWhereInput[]
   NOT?: Prisma.ResidentWhereInput | Prisma.ResidentWhereInput[]
   displayName?: Prisma.StringFilter<"Resident"> | string
+  photoUrl?: Prisma.StringNullableFilter<"Resident"> | string | null
   createdAt?: Prisma.DateTimeFilter<"Resident"> | Date | string
   puzzles?: Prisma.PuzzleListRelationFilter
 }, "id" | "uploadCode">
@@ -199,6 +209,7 @@ export type ResidentWhereUniqueInput = Prisma.AtLeast<{
 export type ResidentOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
   displayName?: Prisma.SortOrder
+  photoUrl?: Prisma.SortOrderInput | Prisma.SortOrder
   uploadCode?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   _count?: Prisma.ResidentCountOrderByAggregateInput
@@ -212,6 +223,7 @@ export type ResidentScalarWhereWithAggregatesInput = {
   NOT?: Prisma.ResidentScalarWhereWithAggregatesInput | Prisma.ResidentScalarWhereWithAggregatesInput[]
   id?: Prisma.UuidWithAggregatesFilter<"Resident"> | string
   displayName?: Prisma.StringWithAggregatesFilter<"Resident"> | string
+  photoUrl?: Prisma.StringNullableWithAggregatesFilter<"Resident"> | string | null
   uploadCode?: Prisma.StringWithAggregatesFilter<"Resident"> | string
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"Resident"> | Date | string
 }
@@ -219,6 +231,7 @@ export type ResidentScalarWhereWithAggregatesInput = {
 export type ResidentCreateInput = {
   id?: string
   displayName: string
+  photoUrl?: string | null
   uploadCode: string
   createdAt?: Date | string
   puzzles?: Prisma.PuzzleCreateNestedManyWithoutResidentInput
@@ -227,6 +240,7 @@ export type ResidentCreateInput = {
 export type ResidentUncheckedCreateInput = {
   id?: string
   displayName: string
+  photoUrl?: string | null
   uploadCode: string
   createdAt?: Date | string
   puzzles?: Prisma.PuzzleUncheckedCreateNestedManyWithoutResidentInput
@@ -235,6 +249,7 @@ export type ResidentUncheckedCreateInput = {
 export type ResidentUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   displayName?: Prisma.StringFieldUpdateOperationsInput | string
+  photoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   uploadCode?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   puzzles?: Prisma.PuzzleUpdateManyWithoutResidentNestedInput
@@ -243,6 +258,7 @@ export type ResidentUpdateInput = {
 export type ResidentUncheckedUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   displayName?: Prisma.StringFieldUpdateOperationsInput | string
+  photoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   uploadCode?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   puzzles?: Prisma.PuzzleUncheckedUpdateManyWithoutResidentNestedInput
@@ -251,6 +267,7 @@ export type ResidentUncheckedUpdateInput = {
 export type ResidentCreateManyInput = {
   id?: string
   displayName: string
+  photoUrl?: string | null
   uploadCode: string
   createdAt?: Date | string
 }
@@ -258,6 +275,7 @@ export type ResidentCreateManyInput = {
 export type ResidentUpdateManyMutationInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   displayName?: Prisma.StringFieldUpdateOperationsInput | string
+  photoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   uploadCode?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -265,6 +283,7 @@ export type ResidentUpdateManyMutationInput = {
 export type ResidentUncheckedUpdateManyInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   displayName?: Prisma.StringFieldUpdateOperationsInput | string
+  photoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   uploadCode?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -272,6 +291,7 @@ export type ResidentUncheckedUpdateManyInput = {
 export type ResidentCountOrderByAggregateInput = {
   id?: Prisma.SortOrder
   displayName?: Prisma.SortOrder
+  photoUrl?: Prisma.SortOrder
   uploadCode?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
 }
@@ -279,6 +299,7 @@ export type ResidentCountOrderByAggregateInput = {
 export type ResidentMaxOrderByAggregateInput = {
   id?: Prisma.SortOrder
   displayName?: Prisma.SortOrder
+  photoUrl?: Prisma.SortOrder
   uploadCode?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
 }
@@ -286,6 +307,7 @@ export type ResidentMaxOrderByAggregateInput = {
 export type ResidentMinOrderByAggregateInput = {
   id?: Prisma.SortOrder
   displayName?: Prisma.SortOrder
+  photoUrl?: Prisma.SortOrder
   uploadCode?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
 }
@@ -297,6 +319,10 @@ export type ResidentScalarRelationFilter = {
 
 export type StringFieldUpdateOperationsInput = {
   set?: string
+}
+
+export type NullableStringFieldUpdateOperationsInput = {
+  set?: string | null
 }
 
 export type DateTimeFieldUpdateOperationsInput = {
@@ -320,6 +346,7 @@ export type ResidentUpdateOneRequiredWithoutPuzzlesNestedInput = {
 export type ResidentCreateWithoutPuzzlesInput = {
   id?: string
   displayName: string
+  photoUrl?: string | null
   uploadCode: string
   createdAt?: Date | string
 }
@@ -327,6 +354,7 @@ export type ResidentCreateWithoutPuzzlesInput = {
 export type ResidentUncheckedCreateWithoutPuzzlesInput = {
   id?: string
   displayName: string
+  photoUrl?: string | null
   uploadCode: string
   createdAt?: Date | string
 }
@@ -350,6 +378,7 @@ export type ResidentUpdateToOneWithWhereWithoutPuzzlesInput = {
 export type ResidentUpdateWithoutPuzzlesInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   displayName?: Prisma.StringFieldUpdateOperationsInput | string
+  photoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   uploadCode?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -357,6 +386,7 @@ export type ResidentUpdateWithoutPuzzlesInput = {
 export type ResidentUncheckedUpdateWithoutPuzzlesInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   displayName?: Prisma.StringFieldUpdateOperationsInput | string
+  photoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   uploadCode?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -395,6 +425,7 @@ export type ResidentCountOutputTypeCountPuzzlesArgs<ExtArgs extends runtime.Type
 export type ResidentSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
   displayName?: boolean
+  photoUrl?: boolean
   uploadCode?: boolean
   createdAt?: boolean
   puzzles?: boolean | Prisma.Resident$puzzlesArgs<ExtArgs>
@@ -404,6 +435,7 @@ export type ResidentSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs
 export type ResidentSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
   displayName?: boolean
+  photoUrl?: boolean
   uploadCode?: boolean
   createdAt?: boolean
 }, ExtArgs["result"]["resident"]>
@@ -411,6 +443,7 @@ export type ResidentSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Exte
 export type ResidentSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
   displayName?: boolean
+  photoUrl?: boolean
   uploadCode?: boolean
   createdAt?: boolean
 }, ExtArgs["result"]["resident"]>
@@ -418,11 +451,12 @@ export type ResidentSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Exte
 export type ResidentSelectScalar = {
   id?: boolean
   displayName?: boolean
+  photoUrl?: boolean
   uploadCode?: boolean
   createdAt?: boolean
 }
 
-export type ResidentOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "displayName" | "uploadCode" | "createdAt", ExtArgs["result"]["resident"]>
+export type ResidentOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "displayName" | "photoUrl" | "uploadCode" | "createdAt", ExtArgs["result"]["resident"]>
 export type ResidentInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   puzzles?: boolean | Prisma.Resident$puzzlesArgs<ExtArgs>
   _count?: boolean | Prisma.ResidentCountOutputTypeDefaultArgs<ExtArgs>
@@ -438,6 +472,7 @@ export type $ResidentPayload<ExtArgs extends runtime.Types.Extensions.InternalAr
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
     displayName: string
+    photoUrl: string | null
     uploadCode: string
     createdAt: Date
   }, ExtArgs["result"]["resident"]>
@@ -866,6 +901,7 @@ export interface Prisma__ResidentClient<T, Null = never, ExtArgs extends runtime
 export interface ResidentFieldRefs {
   readonly id: Prisma.FieldRef<"Resident", 'String'>
   readonly displayName: Prisma.FieldRef<"Resident", 'String'>
+  readonly photoUrl: Prisma.FieldRef<"Resident", 'String'>
   readonly uploadCode: Prisma.FieldRef<"Resident", 'String'>
   readonly createdAt: Prisma.FieldRef<"Resident", 'DateTime'>
 }

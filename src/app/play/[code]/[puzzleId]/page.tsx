@@ -1,25 +1,34 @@
-import type { Metadata } from "next";
+import { prisma } from "@/lib/db";
+import { redirect } from "next/navigation";
+import { PuzzleGame } from "@/components/PuzzleGame";
 
-export const metadata: Metadata = {
-  title: "Play",
-};
+export const dynamic = "force-dynamic";
 
-export default function PuzzleGamePage({
+export default async function PuzzleGamePage({
   params,
+  searchParams,
 }: {
   params: { code: string; puzzleId: string };
+  searchParams: { grid?: string };
 }) {
+  const puzzle = await prisma.puzzle.findUnique({
+    where: { id: params.puzzleId },
+    include: { resident: true },
+  });
+
+  if (!puzzle || puzzle.resident.uploadCode !== params.code) redirect("/");
+
+  const gridSize = Math.min(Math.max(parseInt(searchParams.grid || "3"), 2), 4);
+
   return (
-    <main className="min-h-screen flex items-center justify-center px-4">
-      <div className="text-center">
-        <h1 className="text-2xl font-bold text-stone-900">Puzzle</h1>
-        <p className="mt-2 text-sm text-stone-500">
-          Puzzle board coming soon.
-        </p>
-        <p className="mt-8 text-xs text-stone-400">
-          code: {params.code} | puzzle: {params.puzzleId}
-        </p>
-      </div>
-    </main>
+    <PuzzleGame
+      puzzleId={puzzle.id}
+      imageUrl={puzzle.imageUrl}
+      caption={puzzle.caption}
+      uploadedBy={puzzle.uploadedBy}
+      residentName={puzzle.resident.displayName}
+      gridSize={gridSize}
+      code={params.code}
+    />
   );
 }
