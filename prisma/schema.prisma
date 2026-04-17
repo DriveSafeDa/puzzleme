@@ -1,0 +1,49 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model Resident {
+  id          String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  displayName String   @map("display_name") @db.VarChar(100)
+  uploadCode  String   @unique @map("upload_code") @db.VarChar(8)
+  createdAt   DateTime @default(now()) @map("created_at")
+  puzzles     Puzzle[]
+
+  @@map("residents")
+}
+
+model Puzzle {
+  id          String          @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  residentId  String          @map("resident_id") @db.Uuid
+  imageUrl    String          @map("image_url") @db.VarChar(500)
+  caption     String?         @db.Text
+  uploadedBy  String?         @map("uploaded_by") @db.VarChar(100)
+  difficulty  Int             @default(2)
+  timesPlayed Int             @default(0) @map("times_played")
+  createdAt   DateTime        @default(now()) @map("created_at")
+  resident    Resident        @relation(fields: [residentId], references: [id])
+  sessions    PuzzleSession[]
+
+  @@index([residentId])
+  @@map("puzzles")
+}
+
+model PuzzleSession {
+  id           String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  puzzleId     String    @map("puzzle_id") @db.Uuid
+  difficulty   Int
+  completed    Boolean   @default(false)
+  durationSecs Int?      @map("duration_secs")
+  hintsUsed    Int       @default(0) @map("hints_used")
+  startedAt    DateTime  @default(now()) @map("started_at")
+  completedAt  DateTime? @map("completed_at")
+  puzzle       Puzzle    @relation(fields: [puzzleId], references: [id])
+
+  @@index([puzzleId])
+  @@map("puzzle_sessions")
+}
