@@ -203,29 +203,31 @@ export async function sliceImage(
       ctx.save();
       ctx.clip();
 
-      // Draw the portion of the image
-      const sx = col * cellW;
-      const sy = row * cellH;
+      // Draw the portion of the image — sample area extends beyond cell
+      // boundaries by margin so tabs contain the correct adjacent image data
+      const sx = col * cellW - margin;
+      const sy = row * cellH - margin;
+      // Clamp source coords to avoid sampling outside the image
+      const clampSx = Math.max(0, sx);
+      const clampSy = Math.max(0, sy);
+      const destX = clampSx - sx;
+      const destY = clampSy - sy;
+      const drawW = Math.min(canvasW - destX, scaledW - clampSx);
+      const drawH = Math.min(canvasH - destY, scaledH - clampSy);
       ctx.drawImage(
         fullCanvas,
-        sx - margin, sy - margin,
-        canvasW, canvasH,
-        0, 0,
-        canvasW, canvasH
+        clampSx, clampSy,
+        drawW, drawH,
+        destX, destY,
+        drawW, drawH
       );
 
       ctx.restore();
 
-      // Draw piece outline
+      // Draw piece outline — thin stroke for shape definition
       drawPiecePath(ctx, edges, cellW, cellH, tabSize, margin);
-      ctx.strokeStyle = "rgba(255,255,255,0.7)";
-      ctx.lineWidth = 2;
-      ctx.stroke();
-
-      // Drop shadow effect — dark outline
-      drawPiecePath(ctx, edges, cellW, cellH, tabSize, margin);
-      ctx.strokeStyle = "rgba(0,0,0,0.15)";
-      ctx.lineWidth = 1;
+      ctx.strokeStyle = "rgba(0,0,0,0.2)";
+      ctx.lineWidth = 1.5;
       ctx.stroke();
 
       pieces.push({
@@ -235,7 +237,9 @@ export async function sliceImage(
         dataUrl: pieceCanvas.toDataURL("image/png"),
         currentX: 0,
         currentY: 0,
-        // Correct position accounts for the margin offset
+        // The cell image content starts at (margin, margin) within the canvas.
+        // So the canvas must be positioned so that offset (margin) lines up
+        // with the cell's top-left corner on the board.
         correctX: offsetX + col * cellW - margin,
         correctY: offsetY + row * cellH - margin,
         isPlaced: false,

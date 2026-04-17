@@ -233,8 +233,9 @@ export function PuzzleGame({
                 activePiece === piece.id
                   ? "drop-shadow(4px 4px 8px rgba(0,0,0,0.3))"
                   : piece.isPlaced
-                  ? "none"
+                  ? "drop-shadow(0 0 0 transparent)"
                   : "drop-shadow(2px 2px 4px rgba(0,0,0,0.2))",
+              opacity: piece.isPlaced ? 0.99 : 1, // force compositing layer
             }}
           >
             <img
