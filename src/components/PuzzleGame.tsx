@@ -190,9 +190,9 @@ export function PuzzleGame({
       );
 
       // Magnetic snap — check while dragging
-      const piece = piecesRef.current.find((p) => p.id === pieceId);
-      if (piece) {
-        const testPiece = { ...piece, currentX: x, currentY: y };
+      const dragPiece = piecesRef.current.find((p) => p.id === pieceId);
+      if (dragPiece) {
+        const testPiece = { ...dragPiece, currentX: x, currentY: y };
         const snap = checkSnap(testPiece, SNAP_RADIUS);
         if (snap.snapped) {
           activePieceRef.current = null;
