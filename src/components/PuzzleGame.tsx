@@ -57,15 +57,7 @@ export function PuzzleGame({
 
     sliceImage(imageUrl, gridSize, boardSize.w, boardSize.h).then(
       (sliced) => {
-        const pieceW = Math.floor(boardSize.w / gridSize);
-        const pieceH = Math.floor(boardSize.h / gridSize);
-        const shuffled = shufflePieces(
-          sliced,
-          boardSize.w,
-          boardSize.h,
-          pieceW,
-          pieceH
-        );
+        const shuffled = shufflePieces(sliced, boardSize.w, boardSize.h);
         setPieces(shuffled);
         setLoading(false);
         startTime.current = Date.now();
@@ -141,7 +133,6 @@ export function PuzzleGame({
           playCelebrate();
           setCompleted(true);
 
-          // Log session
           const duration = Math.round((Date.now() - startTime.current) / 1000);
           fetch("/api/sessions", {
             method: "POST",
@@ -186,9 +177,6 @@ export function PuzzleGame({
     );
   }
 
-  const pieceW = Math.floor(boardSize.w / gridSize);
-  const pieceH = Math.floor(boardSize.h / gridSize);
-
   return (
     <main className="min-h-screen flex flex-col items-center justify-center px-4 py-4 select-none">
       <div className="flex items-center gap-4 mb-4">
@@ -200,7 +188,7 @@ export function PuzzleGame({
 
       <div
         ref={boardRef}
-        className="relative rounded-2xl border-2 border-cream-300 bg-cream-100 overflow-hidden touch-none"
+        className="relative rounded-2xl border-2 border-cream-300 bg-cream-100 touch-none"
         style={{ width: boardSize.w, height: boardSize.h }}
         onPointerMove={handlePointerMove}
         onPointerUp={handlePointerUp}
@@ -210,55 +198,53 @@ export function PuzzleGame({
           <img
             src={imageUrl}
             alt=""
-            className="absolute inset-0 w-full h-full object-contain opacity-15 pointer-events-none"
+            className="absolute opacity-15 pointer-events-none object-contain"
+            style={{
+              left: pieces[0]?.correctX + (pieces[0]?.canvasW - Math.floor(boardSize.w / gridSize)) / 2,
+              top: pieces[0]?.correctY + (pieces[0]?.canvasH - Math.floor(boardSize.h / gridSize)) / 2,
+              width: Math.floor(boardSize.w / gridSize) * gridSize,
+              height: Math.floor(boardSize.h / gridSize) * gridSize,
+            }}
           />
         )}
-
-        {/* Grid lines */}
-        {Array.from({ length: gridSize - 1 }).map((_, i) => (
-          <div key={`v${i}`}>
-            <div
-              className="absolute top-0 bottom-0 border-l border-dashed border-cream-400"
-              style={{ left: pieces[0]?.correctX + pieceW * (i + 1) }}
-            />
-            <div
-              className="absolute left-0 right-0 border-t border-dashed border-cream-400"
-              style={{ top: pieces[0]?.correctY + pieceH * (i + 1) }}
-            />
-          </div>
-        ))}
 
         {/* Puzzle pieces */}
         {pieces.map((piece, zIndex) => (
           <div
             key={piece.id}
             onPointerDown={(e) => handlePointerDown(e, piece.id)}
-            className={`absolute cursor-grab active:cursor-grabbing transition-shadow ${
+            className={`absolute cursor-grab active:cursor-grabbing ${
               piece.isPlaced
-                ? "ring-2 ring-puzzle-snap/50 cursor-default"
+                ? "cursor-default"
                 : activePiece === piece.id
-                ? "scale-105 shadow-xl z-50"
-                : "shadow-md hover:shadow-lg"
+                ? "scale-105 z-50"
+                : ""
             }`}
             style={{
               left: piece.currentX,
               top: piece.currentY,
-              width: pieceW,
-              height: pieceH,
+              width: piece.canvasW,
+              height: piece.canvasH,
               zIndex: piece.isPlaced ? 0 : zIndex + 1,
               transition:
                 activePiece === piece.id
                   ? "none"
                   : piece.isPlaced
                   ? "all 0.2s ease"
-                  : "shadow 0.15s",
+                  : "none",
+              filter:
+                activePiece === piece.id
+                  ? "drop-shadow(4px 4px 8px rgba(0,0,0,0.3))"
+                  : piece.isPlaced
+                  ? "none"
+                  : "drop-shadow(2px 2px 4px rgba(0,0,0,0.2))",
             }}
           >
             <img
               src={piece.dataUrl}
               alt=""
               draggable={false}
-              className="w-full h-full rounded-sm border-2 border-white pointer-events-none"
+              className="w-full h-full pointer-events-none"
             />
           </div>
         ))}
