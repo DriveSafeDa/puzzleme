@@ -21,7 +21,7 @@ model Resident {
 model Puzzle {
   id          String          @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   residentId  String          @map("resident_id") @db.Uuid
-  imageUrl    String          @map("image_url") @db.VarChar(500)
+  imageUrl    String          @map("image_url") @db.Text
   caption     String?         @db.Text
   uploadedBy  String?         @map("uploaded_by") @db.VarChar(100)
   difficulty  Int             @default(2)
